@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuaderno del Profesor</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="sb-brand">
+    <span class="sb-brand-icon">📚</span>
+    <span class="sb-brand-name">Cuaderno del Profesor</span>
+  </div>
+
+  <div class="sb-actions">
+    <div class="sb-item" id="btn-today">
+      <span class="sb-item-icon">🏠</span> Hoy
+    </div>
+    <div class="sb-item" id="btn-search">
+      <span class="sb-item-icon">🔍</span> Buscar
+      <span class="kbd">⌘K</span>
+    </div>
+    <div class="sb-item" id="btn-agenda">
+      <span class="sb-item-icon">📅</span> Agenda semanal
+    </div>
+    <div class="sb-item" id="btn-tasks">
+      <span class="sb-item-icon">✅</span> Tareas
+    </div>
+    <div class="sb-item" id="btn-rubrics">
+      <span class="sb-item-icon"></span> Rúbricas
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">
+      Asignaturas
+      <button id="btn-new-subject" title="Nueva asignatura">+</button>
+    </div>
+    <div id="subject-list"></div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">
+      Grupos
+      <button id="btn-new-group" title="Nuevo grupo">+</button>
+    </div>
+    <div id="group-list"></div>
+  </div>
+
+  <div class="sb-section grow">
+    <div class="sb-label">
+      Páginas
+      <button id="btn-new-page" title="Nueva página">+</button>
+    </div>
+    <div id="page-tree"></div>
+  </div>
+
+  <div class="sb-footer">
+    <button id="btn-github" class="sb-item"><span class="sb-item-icon">☁️</span> Sincronizar con GitHub</button>
+    <button id="btn-backup" class="sb-item"><span class="sb-item-icon">💾</span> Copia de seguridad</button>
+    <button id="btn-theme" class="sb-item"><span class="sb-item-icon">🌙</span> <span id="theme-label">Tema oscuro</span></button>
+  </div>
+</aside>
+
+<main id="main">
+  <header id="topbar"></header>
+  <div id="content"></div>
+</main>
+
+<div id="slash-menu" hidden></div>
+<div id="popover" hidden></div>
+<div id="overlay" hidden></div>
+<div id="present" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
