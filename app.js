@@ -18,6 +18,11 @@ function norm(s) {
   return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
 }
 
+/* escapar texto para insertarlo en innerHTML */
+function esc(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+}
+
 function htmlToText(html) {
   const d = document.createElement("div");
   d.innerHTML = html || "";
@@ -45,6 +50,11 @@ function sanitize(html) {
         [...el.attributes].forEach(a => {
           if (!(el.tagName === "A" && a.name === "href")) el.removeAttribute(a.name);
         });
+        /* solo esquemas seguros en los enlaces */
+        if (el.tagName === "A" && el.hasAttribute("href") &&
+            !/^(https?:|mailto:|#|\/)/i.test(el.getAttribute("href").trim())) {
+          el.removeAttribute("href");
+        }
       }
     });
   })(d);
@@ -263,10 +273,22 @@ function loadState() {
   return null;
 }
 
-let state = loadState() || seedData();
-if (!state.subjects) state.subjects = [];
-if (!state.groups) state.groups = [];
-if (!state.rubrics) state.rubrics = [];
+/* garantiza que el estado tiene todas las colecciones, venga de donde venga
+   (localStorage, copia de seguridad antigua o GitHub) */
+function normalizeState(data) {
+  if (!Array.isArray(data.pages)) data.pages = [];
+  if (!data.pages.length) {
+    data.pages.push({ id: uid(), title: "", icon: "📄", parentId: null, open: true, blocks: [mkBlock("text", "")] });
+  }
+  if (!Array.isArray(data.events)) data.events = [];
+  if (!Array.isArray(data.subjects)) data.subjects = [];
+  if (!Array.isArray(data.groups)) data.groups = [];
+  if (!Array.isArray(data.rubrics)) data.rubrics = [];
+  if (!data.settings) data.settings = { theme: "light" };
+  return data;
+}
+
+let state = normalizeState(loadState() || seedData());
 
 /* ---------------- Índices de búsqueda rápida ---------------- */
 
@@ -432,6 +454,7 @@ function renderAll() {
   renderSidebar();
   renderTopbar();
   renderView();
+  document.body.classList.remove("sidebar-open"); /* cerrar el menú móvil al navegar */
 }
 
 function applyTheme() {
@@ -445,7 +468,6 @@ function applyTheme() {
 function renderSidebar() {
   elTree.innerHTML = "";
   const roots = childrenOf(null);
-  elTree.innerHTML = "";
   if (!roots.length) {
     elTree.innerHTML = '<div class="sb-empty">Sin páginas. Pulsa +</div>';
   } else {
@@ -605,6 +627,7 @@ function clonePageTree(srcId, parentId, suffix) {
     icon: src.icon,
     parentId,
     open: src.open,
+    subjectId: src.subjectId || null,
     blocks: src.blocks.map(b => ({ ...b, id: uid(), rows: b.rows ? b.rows.map(r => [...r]) : undefined })),
   };
   state.pages.splice(state.pages.indexOf(src) + 1, 0, np);
@@ -3658,13 +3681,27 @@ function openEventModal(ev) {
     swatches.appendChild(s);
   });
 
+  /* volver a la vista desde la que se abrió el modal (Hoy, mes, asignatura…) */
+  const finish = evDate => {
+    closeModal();
+    save();
+    if (view.kind === "agenda" && evDate) {
+      weekStart = mondayOf(new Date(evDate + "T00:00"));
+      renderAgenda();
+    } else if (view.kind === "month" && evDate) {
+      monthStart = new Date(new Date(evDate + "T00:00").getFullYear(), new Date(evDate + "T00:00").getMonth(), 1);
+      renderMonth();
+    } else {
+      renderAll();
+    }
+  };
+
   m.querySelector("#ev-cancel").onclick = closeModal;
   if (!isNew) {
     m.querySelector("#ev-del").onclick = () => {
+      if (!confirm(`¿Eliminar el evento «${ev.title || "(sin título)"}»${ev.repeat === "weekly" ? " y todas sus repeticiones semanales" : ""}?`)) return;
       state.events = state.events.filter(x => x.id !== ev.id);
-      closeModal();
-      save();
-      renderAgenda();
+      finish(null);
     };
   }
   m.querySelector("#ev-save").onclick = () => {
@@ -3682,10 +3719,7 @@ function openEventModal(ev) {
     } else {
       Object.assign(ev, { title, date, start, end, color, repeat, pageId, subjectId });
     }
-    closeModal();
-    save();
-    weekStart = mondayOf(new Date(date + "T00:00"));
-    renderAgenda();
+    finish(date);
   };
   m.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "ev-title") m.querySelector("#ev-save").click(); });
 }
@@ -3963,12 +3997,9 @@ function openBackupModal() {
       try { data = JSON.parse(r.result); } catch { alert("El archivo no es una copia válida."); return; }
       if (!data || !Array.isArray(data.pages)) { alert("El archivo no es una copia válida."); return; }
       if (!confirm("Esto reemplazará TODOS los datos actuales por los del archivo. ¿Continuar?")) return;
-      data.events = Array.isArray(data.events) ? data.events : [];
-      data.subjects = Array.isArray(data.subjects) ? data.subjects : [];
-      data.settings = data.settings || { theme: "light" };
+      normalizeState(data);
       if (state.settings.github) data.settings.github = state.settings.github; /* conserva el token local */
       state = data;
-      if (!state.pages.length) state.pages.push({ id: uid(), title: "", icon: "📄", parentId: null, open: true, blocks: [mkBlock("text", "")] });
       view = { kind: "page", pageId: state.pages[0].id };
       save();
       closeModal();
@@ -4154,12 +4185,9 @@ function openGitHubModal() {
     setStatus("Descargando…");
     try {
       const data = await ghPull(c);
-      data.events = Array.isArray(data.events) ? data.events : [];
-      data.subjects = Array.isArray(data.subjects) ? data.subjects : [];
-      data.settings = data.settings || { theme: "light" };
+      normalizeState(data);
       data.settings.github = c; /* conserva el token local */
       state = data;
-      if (!state.pages.length) state.pages.push({ id: uid(), title: "", icon: "📄", parentId: null, open: true, blocks: [mkBlock("text", "")] });
       view = { kind: "page", pageId: state.pages[0].id };
       save();
       closeModal();
@@ -4207,9 +4235,9 @@ function renderRubrics() {
       const sub = r.subjectId ? state.subjects.find(s => s.id === r.subjectId) : null;
       const raCount = (r.ras || []).length;
       const appCount = (r.applications || []).length;
-      const dotHtml = sub ? `<span class="dot ev-${sub.color || "blue"}" style="margin-right:4px"></span>${sub.name}` : "Sin asignatura";
+      const dotHtml = sub ? `<span class="dot ev-${sub.color || "blue"}" style="margin-right:4px"></span>${esc(sub.name)}` : "Sin asignatura";
       card.innerHTML = `
-        <div class="rubric-card-name">${r.name || "Sin nombre"}</div>
+        <div class="rubric-card-name">${esc(r.name || "Sin nombre")}</div>
         <div class="rubric-card-meta" style="margin:4px 0">${dotHtml}</div>
         <div class="rubric-card-meta">${raCount} RA${raCount !== 1 ? "s" : ""} · ${appCount} evaluación${appCount !== 1 ? "es" : ""}</div>`;
       card.onclick = () => { view = { kind: "rubric", rubricId: r.id, tab: "design" }; renderAll(); };
@@ -4237,7 +4265,7 @@ function openRubricModal(r) {
   const m = document.createElement("div");
   m.className = "modal";
   const subOpts = state.subjects
-    .map(s => `<option value="${s.id}"${r && r.subjectId === s.id ? " selected" : ""}>${s.name}</option>`)
+    .map(s => `<option value="${s.id}"${r && r.subjectId === s.id ? " selected" : ""}>${esc(s.name)}</option>`)
     .join("");
   m.innerHTML = `
     <h3>${isNew ? "Nueva rúbrica" : "Editar rúbrica"}</h3>
@@ -4390,7 +4418,7 @@ function renderRubricDesign(wrap, r) {
         const row = document.createElement("div");
         row.className = "criterio-row";
         row.innerHTML = `
-          <span class="criterio-name">${inst.name || "Sin nombre"}</span>
+          <span class="criterio-name">${esc(inst.name || "Sin nombre")}</span>
           <span class="ra-weight" style="font-size:12px">${inst.weight || 0}%</span>`;
         const acts = document.createElement("div");
         acts.style.cssText = "display:flex;gap:4px;flex-shrink:0;margin-left:4px";
@@ -4444,7 +4472,7 @@ function renderRubricApply(wrap, r) {
   const grpSel = document.createElement("select");
   grpSel.className = "modal-select";
   grpSel.innerHTML = `<option value="">— Seleccionar —</option>` +
-    state.groups.map(g => `<option value="${g.id}"${view.applyGroupId === g.id ? " selected" : ""}>${g.name}</option>`).join("");
+    state.groups.map(g => `<option value="${g.id}"${view.applyGroupId === g.id ? " selected" : ""}>${esc(g.name)}</option>`).join("");
   grpSel.onchange = () => { view.applyGroupId = grpSel.value || null; view.applyAppId = null; renderRubric(); };
   grpDiv.appendChild(grpSel);
   tb.appendChild(grpDiv);
@@ -4482,7 +4510,7 @@ function renderRubricApply(wrap, r) {
       const active = view.applyAppId === app.id;
       const chip = document.createElement("div");
       chip.style.cssText = `display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 12px;background:${active ? "var(--accent)" : "var(--code-bg)"};color:${active ? "#fff" : "var(--fg)"};border:1px solid ${active ? "var(--accent)" : "var(--border)"};border-radius:980px;font-size:12px;cursor:pointer`;
-      chip.innerHTML = `<span>${app.name}</span><span style="opacity:.65">${g ? g.name : "?"} · ${app.date || ""}</span>`;
+      chip.innerHTML = `<span>${esc(app.name)}</span><span style="opacity:.65">${g ? esc(g.name) : "?"} · ${esc(app.date || "")}</span>`;
       chip.onclick = () => {
         view.applyGroupId = app.groupId; view.applyAppId = app.id;
         view.applyName = app.name; view.applyDate = app.date;
@@ -4591,7 +4619,7 @@ function renderRubricApply(wrap, r) {
   for (const { inst } of activeInstruments) {
     const th = document.createElement("th");
     th.style.cssText = "max-width:110px;font-size:11px;font-weight:500";
-    th.innerHTML = `${inst.name}<br><span style="color:var(--muted);font-weight:400">${inst.weight || 0}%</span>`;
+    th.innerHTML = `${esc(inst.name)}<br><span style="color:var(--muted);font-weight:400">${inst.weight || 0}%</span>`;
     r2.appendChild(th);
   }
 
@@ -4778,7 +4806,7 @@ function exportRubricCSV(r, app, students, activeInstruments, calcFinal) {
     const final = calcFinal(st.id);
     rows.push([st.name || st.id, ...cols, final !== null ? final.toFixed(1) : ""].join(sep));
   }
-  const blob = new Blob(["﻿" + rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob(["﻿" + rows.join("\r\n")], { type: "text/csv;charset=utf-8;" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = `rubrica-${(r.name || "sin-nombre").replace(/\s+/g, "-")}-${(app.name || "eval").replace(/\s+/g, "-")}.csv`;
@@ -4839,6 +4867,10 @@ $("#btn-theme").onclick = () => {
   save();
   applyTheme();
 };
+
+/* menú lateral deslizante en pantallas pequeñas */
+$("#btn-hamburger").onclick = () => document.body.classList.toggle("sidebar-open");
+$("#sb-backdrop").onclick = () => document.body.classList.remove("sidebar-open");
 
 window.addEventListener("beforeunload", save);
 
