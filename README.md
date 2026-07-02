@@ -2,6 +2,8 @@
 
 [![Licencia CC BY 4.0](https://img.shields.io/badge/Licencia-CC%20BY%204.0-green?style=flat-square)](https://creativecommons.org/licenses/by/4.0/)
 
+**Demo:** https://amadorprof.github.io/Cuaderno-del-Profesor/
+
 Aplicación web para docentes que funciona como cuaderno digital. Sin dependencias externas ni servidor. Todo se guarda automáticamente en el navegador mediante localStorage.
 
 ## Funcionalidades
@@ -17,6 +19,7 @@ Aplicación web para docentes que funciona como cuaderno digital. Sin dependenci
 - **Exportar** — descarga de cualquier página en Markdown.
 - **Copia de seguridad** — exporta o restaura todos los datos en un archivo JSON.
 - **Tema claro y oscuro**.
+- **Diseño adaptable** — en pantallas pequeñas (tablet/móvil) la barra lateral se convierte en un menú deslizante.
 
 ## Uso
 
