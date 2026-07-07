@@ -1623,3 +1623,302 @@ body[data-theme="dark"] .tk-kw { color: #ff7ab2; }
   .today-view, .tasks-view, .subject-view { padding-left: 20px; padding-right: 20px; }
   .modal { max-width: calc(100vw - 24px); }
 }
+
+/* ============ Enlaces wiki y etiquetas ============ */
+a[data-wiki] {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--accent);
+  cursor: pointer;
+}
+a[data-wiki]:hover { background: var(--accent-soft); border-bottom-style: solid; }
+
+.hashtag {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 980px;
+  padding: 1px 7px;
+  font-size: 0.92em;
+  cursor: pointer;
+}
+.hashtag:hover { filter: brightness(1.1); text-decoration: underline; }
+
+/* ============ Backlinks ============ */
+.backlinks {
+  margin-top: 44px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.bl-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bl-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 0;
+}
+.bl-row:hover { background: var(--hover); }
+.bl-page { font-weight: 500; font-size: 14px; flex: none; }
+.bl-snippet {
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============ Página incrustada (transclusión) ============ */
+.block.b-pageembed { flex-direction: column; }
+.bk-pageembed {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+a.pe-head {
+  display: block;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--fg);
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+}
+a.pe-head:hover { background: var(--hover-strong); }
+.pe-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-left: 8px;
+}
+.pe-body { padding: 10px 14px; max-height: 420px; overflow-y: auto; }
+
+/* bloques estáticos (incrustados y vista de etiqueta) */
+.st-block { padding: 2px 0; font-size: 14.5px; min-width: 0; }
+.st-block img { max-width: 100%; border-radius: 6px; }
+.st-block hr { border: none; height: 1px; background: var(--border); }
+.st-h1 { font-size: 1.35em; font-weight: 700; margin-top: 8px; }
+.st-h2 { font-size: 1.15em; font-weight: 700; margin-top: 6px; }
+.st-h3 { font-size: 1.02em; font-weight: 700; }
+.st-quote { border-left: 3px solid var(--fg); padding-left: 12px; font-style: italic; }
+.st-callout { background: var(--callout-bg); border-radius: 6px; padding: 8px 12px; }
+.st-code {
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+}
+.st-check { color: var(--muted); }
+.st-done { text-decoration: line-through; color: var(--muted); }
+
+/* ============ Destacados con tipo (callouts) ============ */
+.bk-callout-icon {
+  border: none;
+  background: none;
+  font-size: 16px;
+  padding: 0 2px;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.bk-callout-icon:hover { background: var(--hover-strong); }
+.block.b-callout.co-idea { background: rgba(255, 204, 0, 0.14); }
+.block.b-callout.co-ok { background: rgba(52, 168, 83, 0.13); }
+.block.b-callout.co-warn { background: rgba(232, 132, 26, 0.14); }
+.block.b-callout.co-danger { background: rgba(255, 59, 48, 0.12); }
+.block.b-callout.co-question { background: rgba(175, 82, 222, 0.13); }
+
+/* ============ Topbar: favorito, índice, historial ============ */
+.tb-star.on { color: #f7b500; }
+.tb-star.on .ic { fill: #f7b500; stroke: #f7b500; }
+
+.slash-item.ol-h2 { padding-left: 26px; }
+.slash-item.ol-h3 { padding-left: 42px; }
+
+.block.flash { animation: blockFlash 1.6s ease; border-radius: 6px; }
+@keyframes blockFlash {
+  0% { background: var(--accent-soft); }
+  100% { background: transparent; }
+}
+
+/* ============ Historial de versiones ============ */
+.hist-list { max-height: 46vh; overflow-y: auto; margin: 6px 0; }
+.hist-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+.hist-row:last-child { border-bottom: none; }
+.hist-when { font-weight: 600; flex: none; min-width: 130px; }
+.hist-info {
+  color: var(--muted);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hist-row .btn { padding: 3px 12px; font-size: 12.5px; flex: none; }
+
+/* ============ Tablero de tareas (kanban) ============ */
+.task-mode { display: inline-flex; gap: 6px; margin-left: auto; }
+.tasks-head { flex-wrap: wrap; }
+
+.kanban {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 18px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+.kb-col {
+  flex: none;
+  width: 270px;
+  background: var(--sb-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  transition: box-shadow 0.12s, border-color 0.12s;
+}
+.kb-col.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.kb-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 2px 4px 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.kb-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kb-doneflag { color: var(--green); font-weight: 700; flex: none; }
+.kb-count {
+  font-size: 11.5px;
+  color: var(--muted);
+  background: var(--hover-strong);
+  border-radius: 980px;
+  padding: 1px 8px;
+  flex: none;
+}
+.kb-cfg {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 2px 4px;
+  opacity: 0;
+}
+.kb-col:hover .kb-cfg { opacity: 1; }
+.kb-cfg:hover { background: var(--hover-strong); color: var(--fg); }
+
+.kb-cards { display: flex; flex-direction: column; gap: 8px; min-height: 8px; }
+.kb-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  cursor: grab;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.kb-card.dragging { opacity: 0.45; }
+.kb-card.done .kb-text { text-decoration: line-through; color: var(--muted); }
+.kb-card-top { display: flex; align-items: flex-start; gap: 9px; }
+.kb-card .bk-check {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--muted);
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 2px;
+}
+.kb-card.done .bk-check { background: var(--accent); border-color: var(--accent); }
+.kb-text { font-size: 13.5px; line-height: 1.4; min-width: 0; overflow-wrap: anywhere; }
+.kb-emptytxt { color: var(--muted); font-style: italic; }
+.kb-src {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kb-src:hover { color: var(--accent); }
+
+.kb-add {
+  width: 100%;
+  margin-top: 8px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.kb-add:hover { background: var(--hover-strong); color: var(--fg); }
+.kb-add-input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+.kb-addcol {
+  flex: none;
+  width: 180px;
+  border: 1px dashed var(--border);
+  background: none;
+  color: var(--muted);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  font-size: 13.5px;
+}
+.kb-addcol:hover { border-color: var(--accent); color: var(--accent); }
+
+.col-done-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+  margin-top: 14px !important;
+}
