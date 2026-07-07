@@ -36,6 +36,11 @@
     </div>
   </div>
 
+  <div class="sb-section" id="fav-section" hidden>
+    <div class="sb-label">Favoritos</div>
+    <div id="fav-list"></div>
+  </div>
+
   <div class="sb-section">
     <div class="sb-label">
       Asignaturas
@@ -80,6 +85,18 @@
 <div id="overlay" hidden></div>
 <div id="present" hidden></div>
 
-<script src="app.js"></script>
+<!-- Scripts clásicos (compatibles con file://). El orden de carga importa:
+     util y storage definen la base; main arranca la aplicación. -->
+<script src="js/util.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/shell.js"></script>
+<script src="js/views.js"></script>
+<script src="js/groups.js"></script>
+<script src="js/agenda.js"></script>
+<script src="js/present.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/rubrics.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
